@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'presentation/bloc/auth_bloc.dart';
@@ -16,15 +15,18 @@ class AppRouter {
       GoRoute(
         path: '/',
         builder: (context, state) {
-          return BlocBuilder<AuthBloc, AuthState>(
-            bloc: authBloc,
-            builder: (context, authState) {
-              if (authState is AuthLoggedIn) {
-                return const HomePage();
-              } else {
-                return const LoginPage();
-              }
-            },
+          return BlocProvider.value(
+            value: authBloc,
+            child: BlocBuilder<AuthBloc, AuthState>(
+              bloc: authBloc,
+              builder: (context, authState) {
+                if (authState is AuthLoggedIn) {
+                  return const HomePage();
+                } else {
+                  return const LoginPage();
+                }
+              },
+            ),
           );
         },
       ),

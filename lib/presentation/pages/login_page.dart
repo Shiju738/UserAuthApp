@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../bloc/auth_bloc.dart';
+import '../bloc/auth_event.dart';
+import '../bloc/auth_state.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -65,12 +70,21 @@ class _LoginPageState extends State<LoginPage> {
 
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
-      debugPrint('Form is valid');
-      debugPrint('Email: ${_emailController.text}');
-      debugPrint('Password: ${_passwordController.text}');
-      if (!isLogin) {
-        debugPrint('Name: ${_nameController.text}');
-        debugPrint('Confirm Password: ${_confirmPasswordController.text}');
+      if (isLogin) {
+        context.read<AuthBloc>().add(
+          LoginRequested(
+            email: _emailController.text,
+            password: _passwordController.text,
+          ),
+        );
+      } else {
+        context.read<AuthBloc>().add(
+          RegisterRequested(
+            name: _nameController.text,
+            email: _emailController.text,
+            password: _passwordController.text,
+          ),
+        );
       }
     }
   }
@@ -84,75 +98,93 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(isLogin ? 'Login' : 'Register')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (!isLogin)
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: _validateName,
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthLoggedIn) {
+          context.go('/');
+        } else if (state is AuthError) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: Text(isLogin ? 'Login' : 'Register')),
+        body: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            if (state is AuthLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (!isLogin)
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Name',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: _validateName,
+                      ),
+                    if (!isLogin) const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: _validateEmail,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                      validator: _validatePassword,
+                    ),
+                    const SizedBox(height: 16),
+                    if (!isLogin)
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        decoration: const InputDecoration(
+                          labelText: 'Confirm Password',
+                          border: OutlineInputBorder(),
+                        ),
+                        obscureText: true,
+                        validator: _validateConfirmPassword,
+                      ),
+                    if (!isLogin) const SizedBox(height: 24),
+                    if (isLogin) const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: _handleSubmit,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
+                      child: Text(isLogin ? 'Login' : 'Register'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: _toggleMode,
+                      child: Text(
+                        isLogin
+                            ? 'Don\'t have an account? Register'
+                            : 'Already have an account? Login',
+                      ),
+                    ),
+                  ],
                 ),
-              if (!isLogin) const SizedBox(height: 16),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: _validateEmail,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: _validatePassword,
-              ),
-              const SizedBox(height: 16),
-              if (!isLogin)
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  validator: _validateConfirmPassword,
-                ),
-              if (!isLogin) const SizedBox(height: 24),
-              if (isLogin) const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: _handleSubmit,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 48),
-                ),
-                child: Text(isLogin ? 'Login' : 'Register'),
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: _toggleMode,
-                child: Text(
-                  isLogin
-                      ? 'Don\'t have an account? Register'
-                      : 'Already have an account? Login',
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
