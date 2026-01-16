@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
       title: AppConstants.appName,
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
       routerConfig: AppRouter(authBloc).router,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

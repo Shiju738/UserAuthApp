@@ -10,6 +10,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
       super(AuthInitial()) {
     on<AppStarted>(_onAppStarted);
+    on<AuthFormSubmitted>(_onAuthFormSubmitted);
   }
 
   Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
@@ -20,4 +21,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoggedOut());
     }
   }
+
+  Future<void> _onAuthFormSubmitted(
+    AuthFormSubmitted event,
+    Emitter<AuthState> emit,
+  ) async {}
 }
