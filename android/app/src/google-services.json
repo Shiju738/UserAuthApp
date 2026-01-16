@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "127635872422",
+    "project_id": "userauthapp-db354",
+    "storage_bucket": "userauthapp-db354.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:127635872422:android:51114910b95bf62214b267",
+        "android_client_info": {
+          "package_name": "com.example.userauthapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDY1rSZCnzvJXrpPhOiXkO1OMD1k5Z_RK4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
