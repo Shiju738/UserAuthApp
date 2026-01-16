@@ -20,3 +20,5 @@ class RegisterRequested extends AuthEvent {
     required this.password,
   });
 }
+
+class LogoutRequested extends AuthEvent {}
