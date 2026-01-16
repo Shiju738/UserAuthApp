@@ -15,6 +15,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutRequested>(_onLogoutRequested);
   }
 
+  String _getErrorMessage(dynamic error) {
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case 'user-not-found':
+          return 'No user found with this email';
+        case 'wrong-password':
+          return 'Incorrect password';
+        case 'email-already-in-use':
+          return 'This email is already registered';
+        case 'invalid-email':
+          return 'Invalid email address';
+        case 'weak-password':
+          return 'Password is too weak';
+        case 'network-request-failed':
+          return 'Network error. Please check your connection';
+        case 'too-many-requests':
+          return 'Too many attempts. Please try again later';
+        case 'operation-not-allowed':
+          return 'Operation not allowed';
+        case 'invalid-credential':
+          return 'Invalid email or password';
+        default:
+          return 'Authentication failed. Please try again';
+      }
+    }
+    return 'An error occurred. Please try again';
+  }
+
   Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
     final user = _firebaseAuth.currentUser;
     if (user != null) {
@@ -36,7 +64,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(AuthLoggedIn());
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_getErrorMessage(e)));
       emit(AuthLoggedOut());
     }
   }
@@ -54,7 +82,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await userCredential.user?.updateDisplayName(event.name);
       emit(AuthLoggedIn());
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_getErrorMessage(e)));
       emit(AuthLoggedOut());
     }
   }

@@ -110,18 +110,16 @@ class _LoginPageState extends State<LoginPage> {
       },
       child: Scaffold(
         appBar: AppBar(title: Text(isLogin ? 'Login' : 'Register')),
-        body: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const SizedBox(height: 40),
                     if (!isLogin)
                       TextFormField(
                         controller: _nameController,
@@ -164,12 +162,28 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     if (!isLogin) const SizedBox(height: 24),
                     if (isLogin) const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: _handleSubmit,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 48),
-                      ),
-                      child: Text(isLogin ? 'Login' : 'Register'),
+                    BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, state) {
+                        final isLoading = state is AuthLoading;
+                        return ElevatedButton(
+                          onPressed: isLoading ? null : _handleSubmit,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 48),
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : Text(isLogin ? 'Login' : 'Register'),
+                        );
+                      },
                     ),
                     const SizedBox(height: 16),
                     TextButton(
@@ -180,11 +194,12 @@ class _LoginPageState extends State<LoginPage> {
                             : 'Already have an account? Login',
                       ),
                     ),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
